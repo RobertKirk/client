@@ -1222,7 +1222,7 @@ def split_files(files, MAX_MB=10):
         size = 0
         num_lines = 0
         content = file["content"]
-        while True:
+        while num_lines < len(content):
             size += _str_size(content[num_lines])
             if size > num_bytes:
                 break
@@ -1262,6 +1262,7 @@ def split_files(files, MAX_MB=10):
                 }
                 files_stack.append(f2)
                 yield current_volume
+                current_volume = {}
                 current_size = 0
                 continue
             else:

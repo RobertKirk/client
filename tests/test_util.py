@@ -1,3 +1,4 @@
+import itertools
 import random
 import sys
 import os
@@ -10,10 +11,11 @@ import string
 if sys.version_info >= (3, 9):
     pytest.importorskip("tensorflow")
 import tensorflow
-import plotly
+
+# import plotly
 import matplotlib.pyplot as plt
 
-from . import utils
+# from . import utils
 from wandb import util
 
 try:
@@ -279,23 +281,50 @@ def test_matplotlib_to_plotly():
 
 
 def test_split_files():
-
-    def rand_string(size):
-        return ''.join(random.choices(string.ascii_letters + string.punctuation + string.digits + string.whitespace, k=size))
+    def rand_string_list(size):
+        width = max(1, int(size / 10))
+        num_lines = int(size / width)
+        return [
+            "".join(
+                random.choices(
+                    string.ascii_letters
+                    + string.punctuation
+                    + string.digits
+                    + string.whitespace,
+                    k=random.randint(1, width),
+                )
+            )
+            for _ in range(num_lines)
+        ]
 
     file_size = 0.1  # MB
-    num_files = 3
+    num_files = 10
     chunk_size = 0.01  # MB
-    files = {"file_%s.txt" % i: {"content": rand_string(int(file_size * 1024 * 1024)), "offset": 0}  for i in range(num_files)}
-    chunks = util.split_files(files, MAX_MB=chunk_size)
+    files = {
+        "file_%s.txt"
+        % i: {"content": rand_string_list(int(file_size * 1024 * 1024)), "offset": 0}
+        for i in range(num_files)
+    }
+    chunks = list(util.split_files(files, MAX_MB=chunk_size))
 
     # re combine chunks
     buff = {}
     for c in chunks:
+        chunks_list.append(c)
         for k, v in c.items():
             if k in buff:
                 buff[k].append(v)
             else:
                 buff[k] = [v]
-    files2 = {k: {"content": ''.join(c["content"] for c in sorted(v, key=lambda c: c["offset"])), "offset": 0} for k, v in buff.items()}
+    files2 = {
+        k: {
+            "content": list(
+                itertools.chain(
+                    *(c["content"] for c in sorted(v, key=lambda c: c["offset"]))
+                )
+            ),
+            "offset": 0,
+        }
+        for k, v in buff.items()
+    }
     assert files == files2
