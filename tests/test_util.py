@@ -286,10 +286,8 @@ def test_split_files():
     file_size = 10  # MB
     num_files = 3
     chunk_size = 0.1  # MB
-    files = [{"name": "file_%s.txt" % i, "content": rand_string(file_size * 1024 * 1024), "offset": 0}  for i in range(num_files)]
-    chunks = []
-    for f in files:
-        chunks.extend(util.split_files(f, MAX_MB=chunk_size))
+    files = {"file_%s.txt" % i: {"content": rand_string(file_size * 1024 * 1024), "offset": 0}  for i in range(num_files)}
+    chunks = util.split_files(f, MAX_MB=chunk_size)
 
     # re combine chunks
     buff = {}
@@ -299,5 +297,5 @@ def test_split_files():
             buff[name].append(c)
         else:
             buff[name] = [c]
-    files2 = [{"name": k, "content": ''.join(c["content"] for c in sorted(v, lambda c: c["offset"])), "offset": 0} for k, v in buff.items()]
+    files2 = {k: {"content": ''.join(c["content"] for c in sorted(v, lambda c: c["offset"])), "offset": 0} for k, v in buff.items()}
     assert files == files2
