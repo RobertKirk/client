@@ -297,5 +297,5 @@ def test_split_files():
                 buff[k].append(v)
             else:
                 buff[k] = [v]
-    files2 = {k: {"content": ''.join(c["content"] for c in sorted(v, lambda c: c["offset"])), "offset": 0} for k, v in buff.items()}
+    files2 = {k: {"content": ''.join(c["content"] for c in sorted(v, key=lambda c: c["offset"])), "offset": 0} for k, v in buff.items()}
     assert files == files2
