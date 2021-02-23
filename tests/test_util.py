@@ -287,7 +287,7 @@ def test_split_files():
     num_files = 3
     chunk_size = 0.1  # MB
     files = {"file_%s.txt" % i: {"content": rand_string(file_size * 1024 * 1024), "offset": 0}  for i in range(num_files)}
-    chunks = util.split_files(f, MAX_MB=chunk_size)
+    chunks = util.split_files(files, MAX_MB=chunk_size)
 
     # re combine chunks
     buff = {}
