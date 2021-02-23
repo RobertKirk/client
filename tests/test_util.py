@@ -283,12 +283,13 @@ def test_split_files():
     def rand_string(size):
         return ''.join(random.choices(string.ascii_letters + string.punctuation + string.digits + string.whitespace, k=size))
 
-    file_size = 100  # MB
+    file_size = 10  # MB
     num_files = 3
+    chunk_size = 0.1  # MB
     files = [{"name": "file_%s.txt" % i, "content": rand_string(file_size * 1024 * 1024), "offset": 0}  for i in range(num_files)]
     chunks = []
     for f in files:
-        chunks.extend(util.split_files(f, MAX_MB=10))
+        chunks.extend(util.split_files(f, MAX_MB=chunk_size))
 
     # re combine chunks
     buff = {}
