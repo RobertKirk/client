@@ -1191,7 +1191,7 @@ def _is_kaggle():
     )
 
 
-def split_files(self, files, MAX_MB=10):
+def split_files(files, MAX_MB=10):
     current_volume = {}
     current_size = 0
     max_size = MAX_MB * 1024 * 1024
