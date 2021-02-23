@@ -297,9 +297,9 @@ def test_split_files():
             for _ in range(num_lines)
         ]
 
-    file_size = 0.1  # MB
+    file_size = 1  # MB
     num_files = 10
-    chunk_size = 0.01  # MB
+    chunk_size = 0.1  # MB
     files = {
         "file_%s.txt"
         % i: {"content": rand_string_list(int(file_size * 1024 * 1024)), "offset": 0}
@@ -307,7 +307,7 @@ def test_split_files():
     }
     chunks = list(util.split_files(files, MAX_MB=chunk_size))
 
-    # re combine chunks
+    # re-combine chunks
     buff = {}
     for c in chunks:
         for k, v in c.items():
@@ -327,3 +327,13 @@ def test_split_files():
         for k, v in buff.items()
     }
     assert files == files2
+
+    # Verify chunk offsets (These can be messed up and above assertion would still pass).
+    for fname in files:
+        offset_size_pairs = [(c[fname]["offset"], len(c[fname]["content"]) for c in chunks if fname in c]
+        sort(offset_size_pairs, key=lambda p: p[0])
+        assert offset_size_pairs[0][0] == 0
+        offsets = [p[0] for p in offset_size_pairs]
+        for i in range(len(offset_size_pairs) - 1):
+            assert offset_size_pairs[i + 1][0] == sum(offset_size_pairs[i])
+        assert sum(offset_size_pairs[-1]) == len(files[fname]["content"])
