@@ -330,8 +330,9 @@ def test_split_files():
 
     # Verify chunk offsets (These can be messed up and above assertion would still pass).
     for fname in files:
-        offset_size_pairs = [(c[fname]["offset"], len(c[fname]["content"])) for c in chunks if fname in c]
-        sort(offset_size_pairs, key=lambda p: p[0])
+        offset_size_pairs = [
+            (c[fname]["offset"], len(c[fname]["content"])) for c in chunks if fname in c
+        ].sort(key=lambda p: p[0])
         assert offset_size_pairs[0][0] == 0
         offsets = [p[0] for p in offset_size_pairs]
         for i in range(len(offset_size_pairs) - 1):
