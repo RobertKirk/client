@@ -4,6 +4,8 @@ import os
 import pytest
 import numpy
 import platform
+import random
+import string
 
 if sys.version_info >= (3, 9):
     pytest.importorskip("tensorflow")
@@ -274,3 +276,27 @@ def test_matplotlib_to_plotly():
     fig = utils.matplotlib_without_image()
     assert type(util.matplotlib_to_plotly(plt)) == plotly.graph_objs._figure.Figure
     plt.close()
+
+
+def test_split_files():
+
+    def rand_string(size):
+        return ''.join(random.choices(string.ascii_letters + string.punctuation + string.digits + string.whitespace, k=size))
+
+    file_size = 100  # MB
+    num_files = 3
+    files = [{"name": "file_%s.txt" % i, "content": rand_string(file_size * 1024 * 1024), "offset": 0}  for i in range(num_files)]
+    chunks = []
+    for f in files:
+        chunks.extend(util.split_files(f, MAX_MB=10))
+
+    # re combine chunks
+    buff = {}
+    for c in chunks:
+        name = c["name"]
+        if name in buff:
+            buff[name].append(c)
+        else:
+            buff[name] = [c]
+    files2 = [{"name": k, "content": ''.join(c["content"] for c in sorted(v, lambda c: c["offset"])), "offset": 0} for k, v in buff.items()]
+    assert files == files2
