@@ -292,10 +292,10 @@ def test_split_files():
     # re combine chunks
     buff = {}
     for c in chunks:
-        name = c["name"]
-        if name in buff:
-            buff[name].append(c)
-        else:
-            buff[name] = [c]
+        for k, v in c:
+            if k in buff:
+                buff[k].append(v)
+            else:
+                buff[k] = [v]
     files2 = {k: {"content": ''.join(c["content"] for c in sorted(v, lambda c: c["offset"])), "offset": 0} for k, v in buff.items()}
     assert files == files2
