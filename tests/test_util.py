@@ -292,7 +292,7 @@ def test_split_files():
     # re combine chunks
     buff = {}
     for c in chunks:
-        for k, v in c:
+        for k, v in c.items():
             if k in buff:
                 buff[k].append(v)
             else:
